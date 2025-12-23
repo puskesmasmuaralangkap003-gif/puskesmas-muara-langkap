@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Detail Informasi</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        /* Tambahan khusus detail */
+        .detail-media img,
+        .detail-media video,
+        .detail-media iframe {
+            width: 100%;
+            margin: 12px 0;
+            border-radius: 10px;
+        }
+
+        .back-link {
+            text-decoration: none;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="main">
+
+    <!-- HEADER -->
+    <div class="header">
+        <a href="index.html" class="back-link">←</a>
+        <h1>Detail Informasi</h1>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content">
+        <div class="card" id="detailContent">
+            <!-- Diisi JavaScript -->
+        </div>
+    </div>
+
+</div>
+
+<script>
+/* =====================================
+   AMBIL DATA ARTIKEL DARI LOCALSTORAGE
+   ===================================== */
+const data = JSON.parse(localStorage.getItem("detailArticle"));
+const container = document.getElementById("detailContent");
+
+if (!data) {
+    container.innerHTML = `
+        <p>Data tidak ditemukan.</p>
+        <a href="index.html">Kembali ke Beranda</a>
+    `;
+} else {
+
+    let mediaHTML = "";
+
+    /* =============================
+       TAMPILKAN MEDIA UPLOAD
+       ============================= */
+    if (data.media && data.media.length > 0) {
+        mediaHTML += `<div class="detail-media">`;
+
+        data.media.forEach(item => {
+            if (item.type === "image") {
+                mediaHTML += `
+                    <img src="${item.data}" alt="Gambar Informasi">
+                `;
+            } else if (item.type === "video") {
+                mediaHTML += `
+                    <video controls>
+                        <source src="${item.data}">
+                        Browser Anda tidak mendukung video.
+                    </video>
+                `;
+            }
+        });
+
+        mediaHTML += `</div>`;
+    }
+
+    /* =============================
+       VIDEO YOUTUBE (OPSIONAL)
+       ============================= */
+    if (data.videoLink) {
+        const embed = data.videoLink.replace("watch?v=", "embed/");
+        mediaHTML += `
+            <iframe height="315"
+                src="${embed}"
+                frameborder="0"
+                allowfullscreen>
+            </iframe>
+        `;
+    }
+
+    /* =============================
+       TAMPILKAN DATA
+       ============================= */
+    container.innerHTML = `
+        <h2>${data.title}</h2>
+        <p style="font-size:13px;color:#777">
+            Dipublikasikan: ${data.date || "-"}
+        </p>
+        ${mediaHTML}
+        <hr>
+        <p style="white-space:pre-line">${data.content}</p>
+    `;
+}
+</script>
+
+</body>
+</html>

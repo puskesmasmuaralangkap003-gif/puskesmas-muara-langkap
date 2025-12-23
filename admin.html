@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Panel Admin Puskesmas</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link rel="stylesheet" href="style.css">
+
+<style>
+.preview img, .preview video {
+    width: 100%;
+    margin: 8px 0;
+    border-radius: 8px;
+}
+.preview {
+    margin-top: 10px;
+}
+</style>
+</head>
+<body>
+
+<!-- ================= PROTEKSI LOGIN ================= -->
+<script>
+if (localStorage.getItem("isAdmin") !== "true") {
+    window.location.href = "login.html";
+}
+</script>
+
+<div class="main">
+
+<!-- ================= HEADER ================= -->
+<div class="header">
+    <h1>Panel Admin Puskesmas</h1>
+    <button onclick="logout()">Logout</button>
+</div>
+
+<div class="content">
+
+<!-- ================= POST INFORMASI ================= -->
+<div class="card">
+    <h3>Posting Informasi</h3>
+
+    <input id="title" placeholder="Judul Informasi"
+        style="width:100%;margin-bottom:10px">
+
+    <input id="desc" placeholder="Deskripsi Singkat"
+        style="width:100%;margin-bottom:10px">
+
+    <textarea id="contentText" placeholder="Isi lengkap informasi"
+        style="width:100%;height:140px"></textarea>
+
+    <br><br>
+
+    <label><b>Cover Artikel (1 gambar)</b></label>
+    <input type="file" id="cover" accept="image/*">
+
+    <br><br>
+
+    <label><b>Upload Gambar / Video (bebas jumlah)</b></label>
+    <input type="file" id="media" multiple accept="image/*,video/*">
+    <div class="preview" id="preview"></div>
+
+    <br>
+    <label><b>Link Video YouTube (opsional)</b></label>
+    <input id="videoLink"
+        placeholder="https://youtube.com/watch?v=..."
+        style="width:100%">
+
+    <br><br>
+    <button onclick="saveArticle()">Simpan Informasi</button>
+</div>
+
+<!-- ================= PENGATURAN BACKGROUND ================= -->
+<div class="card">
+    <h3>Pengaturan Background Beranda</h3>
+
+    <label><b>Upload Background (gambar)</b></label>
+    <input type="file" id="bgImage" accept="image/*">
+
+    <br><br>
+
+    <label><b>Atau Warna / Gradasi (CSS)</b></label>
+    <input type="text" id="bgColor"
+        placeholder="contoh: linear-gradient(135deg,#0d6efd,#0bbcd6)"
+        style="width:100%">
+
+    <br><br>
+    <button onclick="saveBackground()">Simpan Background</button>
+</div>
+
+<!-- ================= LIST INFORMASI ================= -->
+<div class="card">
+    <h3>Daftar Informasi</h3>
+    <div id="articleList"></div>
+</div>
+
+</div>
+</div>
+
+<script>
+/* ================= DATA ================= */
+let articles = JSON.parse(localStorage.getItem("articles")) || [];
+let editIndex = null;
+
+/* ================= PREVIEW MEDIA ================= */
+media.onchange = () => {
+    preview.innerHTML = "";
+    [...media.files].forEach(f => {
+        const url = URL.createObjectURL(f);
+        preview.innerHTML += f.type.startsWith("image")
+            ? `<img src="${url}">`
+            : `<video src="${url}" controls></video>`;
+    });
+};
+
+/* ================= SIMPAN ARTIKEL ================= */
+async function saveArticle() {
+    if (!title.value || !desc.value || !contentText.value) {
+        alert("Judul, deskripsi, dan isi wajib diisi");
+        return;
+    }
+
+    let coverData = "";
+    if (cover.files[0]) {
+        coverData = await toBase64(cover.files[0]);
+    }
+
+    let mediaData = [];
+    for (let f of media.files) {
+        mediaData.push({
+            type: f.type.startsWith("image") ? "image" : "video",
+            data: await toBase64(f)
+        });
+    }
+
+    const data = {
+        title: title.value,
+        desc: desc.value,
+        content: contentText.value,
+        cover: coverData,
+        media: mediaData,
+        videoLink: videoLink.value,
+        date: new Date().toLocaleDateString("id-ID")
+    };
+
+    if (editIndex === null) {
+        articles.unshift(data);
+    } else {
+        articles[editIndex] = data;
+        editIndex = null;
+    }
+
+    localStorage.setItem("articles", JSON.stringify(articles));
+    clearForm();
+    renderList();
+    alert("Informasi berhasil disimpan");
+}
+
+/* ================= LIST ================= */
+function renderList() {
+    articleList.innerHTML = "";
+
+    if (articles.length === 0) {
+        articleList.innerHTML = "<p>Belum ada informasi.</p>";
+        return;
+    }
+
+    articles.forEach((a, i) => {
+        articleList.innerHTML += `
+        <div style="margin-bottom:10px">
+            <b>${a.title}</b><br>
+            <small>${a.date}</small><br>
+            <button onclick="editArticle(${i})">Edit</button>
+            <button onclick="deleteArticle(${i})">Hapus</button>
+            <hr>
+        </div>`;
+    });
+}
+
+/* ================= EDIT ================= */
+function editArticle(i) {
+    editIndex = i;
+    title.value = articles[i].title;
+    desc.value = articles[i].desc;
+    contentText.value = articles[i].content;
+    videoLink.value = articles[i].videoLink || "";
+}
+
+/* ================= HAPUS ================= */
+function deleteArticle(i) {
+    if (confirm("Yakin hapus informasi ini?")) {
+        articles.splice(i, 1);
+        localStorage.setItem("articles", JSON.stringify(articles));
+        renderList();
+    }
+}
+
+/* ================= BACKGROUND ================= */
+async function saveBackground() {
+    const img = bgImage.files[0];
+    const color = bgColor.value;
+
+    let bgData = {};
+
+    if (img) {
+        bgData.type = "image";
+        bgData.value = await toBase64(img);
+    } else if (color) {
+        bgData.type = "color";
+        bgData.value = color;
+    } else {
+        alert("Pilih gambar atau isi warna/gradasi");
+        return;
+    }
+
+    localStorage.setItem("heroBackground", JSON.stringify(bgData));
+    alert("Background beranda berhasil diubah");
+}
+
+/* ================= UTIL ================= */
+function clearForm() {
+    title.value = desc.value = contentText.value = "";
+    cover.value = media.value = videoLink.value = "";
+    preview.innerHTML = "";
+}
+
+function logout() {
+    localStorage.removeItem("isAdmin");
+    location.href = "index.html";
+}
+
+function toBase64(file) {
+    return new Promise(resolve => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.readAsDataURL(file);
+    });
+}
+
+/* LOAD */
+renderList();
+</script>
+
+</body>
+</html>

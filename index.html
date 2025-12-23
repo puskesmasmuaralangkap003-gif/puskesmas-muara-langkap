@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Puskesmas Muara Langkap</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar" id="sidebar">
+    <h2>Puskesmas</h2>
+    <a href="index.html">Beranda</a>
+    <a href="#">Profil</a>
+    <a href="#">Tenaga Kesehatan</a>
+    <a href="#">Layanan Puskesmas</a>
+    <a href="#">Jadwal Posyandu</a>
+    <a href="#">SOP</a>
+</div>
+
+<!-- MAIN -->
+<div class="main" id="main">
+
+    <!-- HEADER -->
+    <div class="header">
+        <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+        <h1>
+            <a href="index.html" class="title-link">
+                Puskesmas Muara Langkap
+            </a>
+        </h1>
+        <input type="text" id="searchInput" placeholder="Cari informasi...">
+    </div>
+
+    <!-- HERO / BACKGROUND -->
+    <section class="hero" id="hero">
+        <div class="hero-overlay">
+            <h2>Selamat Datang di</h2>
+            <h3>UPT Puskesmas Muara Langkap</h3>
+            <p>Melayani kesehatan masyarakat dengan profesional dan sepenuh hati</p>
+        </div>
+    </section>
+
+    <!-- CONTENT -->
+    <div class="content" id="content"></div>
+
+    <!-- PAGINATION -->
+    <div class="pagination" id="pagination"></div>
+
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>

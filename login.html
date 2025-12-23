@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Login Admin</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="main">
+
+    <!-- HEADER -->
+    <div class="header">
+        <h1>Login Admin Puskesmas</h1>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content">
+        <div class="card" style="max-width:400px;margin:auto">
+            <input 
+                type="text" 
+                id="username" 
+                placeholder="Username"
+                style="width:100%;margin-bottom:10px"
+            >
+
+            <input 
+                type="password" 
+                id="password" 
+                placeholder="Password"
+                style="width:100%;margin-bottom:10px"
+            >
+
+            <button onclick="login()">Login</button>
+        </div>
+    </div>
+
+</div>
+
+<script>
+function login() {
+    const user = document.getElementById("username").value;
+    const pass = document.getElementById("password").value;
+
+    /* =============================
+       USERNAME & PASSWORD ADMIN
+       ============================= */
+    if (user === "adminpuskesmas" && pass === "muaralangkap123") {
+        localStorage.setItem("isAdmin", "true");
+        window.location.href = "admin.html";
+    } else {
+        alert("Username atau password salah");
+    }
+}
+</script>
+
+</body>
+</html>
